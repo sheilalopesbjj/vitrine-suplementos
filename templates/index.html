@@ -3,78 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Vitrine de Suplementos</title>
-
-    <style>
-        body { font-family: Arial; background: #f6f6f6; padding: 20px; }
-        h1 { text-align: center; }
-
-        .produtos {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-        }
-
-        .produto {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .produto img {
-            width: 100%;
-            max-height: 160px;
-            object-fit: contain;
-        }
-
-        a.botao {
-            display: block;
-            background: #25d366;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            text-decoration: none;
-            margin-top: 10px;
-        }
-
-        .carrinho {
-            background: white;
-            padding: 15px;
-            margin-top: 30px;
-            border-radius: 8px;
-        }
-    </style>
 </head>
-
 <body>
 
-<h1>🛒 Vitrine de Suplementos</h1>
+<h1>🛒 Loja de Suplementos</h1>
 
-<div class="produtos">
-    {% for p in produtos %}
-    <div class="produto">
-        <img src="{{ p.imagem }}" alt="{{ p.nome }}">
-        <h3>{{ p.nome }}</h3>
-        <p>R$ {{ "%.2f"|format(p.preco) }}</p>
-        <a class="botao" href="/add/{{ loop.index0 }}">Adicionar ao carrinho</a>
+{% for produto in produtos %}
+    <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+        <h3>{{ produto.nome }}</h3>
+        <p>Preço: R$ {{ produto.preco }}</p>
+        <a href="/add/{{ loop.index0 }}">Adicionar ao carrinho</a>
     </div>
-    {% endfor %}
-</div>
+{% endfor %}
 
-{% if carrinho %}
-<div class="carrinho">
-    <h3>Seu carrinho</h3>
+<hr>
 
-    {% for p in carrinho %}
-        <p>- {{ p.nome }} (R$ {{ "%.2f"|format(p.preco) }})</p>
-    {% endfor %}
-
-    <p><strong>Total: R$ {{ "%.2f"|format(total) }}</strong></p>
-
-    <a class="botao" href="/finalizar">Finalizar no WhatsApp</a>
-    <a class="botao" style="background:#999" href="/limpar">Limpar carrinho</a>
-</div>
-
+<h2>Carrinho: {{ carrinho|length }} itens</h2>
+<a href="/carrinho">Ver carrinho</a>
 
 </body>
 </html>

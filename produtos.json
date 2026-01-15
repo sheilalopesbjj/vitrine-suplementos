@@ -1,16 +1,10 @@
 [
   {
     "nome": "Creatina Monohidratada 300g",
-    "preco": "99,90",
-    "imagem": "https://i.imgur.com/8Km9tLL.png",
-    "descricao": "Mais força e desempenho",
-    "whatsapp": "5522981106356"
+    "preco": "99,90"
   },
   {
-    "nome": "Whey Protein Concentrado 900g",
-    "preco": "129,90",
-    "imagem": "https://i.imgur.com/JYzR2ZL.png",
-    "descricao": "Ganho de massa muscular",
-    "whatsapp": "5522981106356"
+    "nome": "Whey Protein 900g",
+    "preco": "129,90"
   }
 ]
