@@ -5,13 +5,7 @@
     <title>Vitrine de Suplementos</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f6f6f6;
-            margin: 0;
-            padding: 20px;
-        }
-
+        body { font-family: Arial; background: #f6f6f6; padding: 20px; }
         h1 { text-align: center; }
 
         .produtos {
@@ -21,7 +15,7 @@
         }
 
         .produto {
-            background: #fff;
+            background: white;
             padding: 15px;
             border-radius: 8px;
             text-align: center;
@@ -33,48 +27,21 @@
             object-fit: contain;
         }
 
-        button {
+        a.botao {
+            display: block;
             background: #25d366;
-            border: none;
             color: white;
             padding: 10px;
             border-radius: 6px;
-            cursor: pointer;
+            text-decoration: none;
             margin-top: 10px;
-            width: 100%;
         }
 
-        #btn-carrinho {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #000;
-            color: #fff;
-            padding: 14px 18px;
-            border-radius: 50px;
-            cursor: pointer;
-            z-index: 999;
-        }
-
-        #modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 1000;
-        }
-
-        #modal-conteudo {
+        .carrinho {
             background: white;
-            max-width: 400px;
-            margin: 80px auto;
-            padding: 20px;
+            padding: 15px;
+            margin-top: 30px;
             border-radius: 8px;
-        }
-
-        .item {
-            border-bottom: 1px solid #ddd;
-            padding: 6px 0;
         }
     </style>
 </head>
@@ -89,88 +56,25 @@
         <img src="{{ p.imagem }}" alt="{{ p.nome }}">
         <h3>{{ p.nome }}</h3>
         <p>R$ {{ "%.2f"|format(p.preco) }}</p>
-
-        <button 
-            data-nome="{{ p.nome }}"
-            data-preco="{{ p.preco }}"
-            onclick="addCarrinho(this)">
-            Adicionar ao carrinho
-        </button>
+        <a class="botao" href="/add/{{ loop.index0 }}">Adicionar ao carrinho</a>
     </div>
     {% endfor %}
 </div>
 
-<div id="btn-carrinho" onclick="abrirCarrinho()">🛒 Ver carrinho</div>
+{% if carrinho %}
+<div class="carrinho">
+    <h3>Seu carrinho</h3>
 
-<div id="modal">
-    <div id="modal-conteudo">
-        <h3>Seu carrinho</h3>
-        <div id="lista"></div>
+    {% for p in carrinho %}
+        <p>- {{ p.nome }} (R$ {{ "%.2f"|format(p.preco) }})</p>
+    {% endfor %}
 
-        <button onclick="finalizarWhatsApp()">Finalizar no WhatsApp</button>
-        <button onclick="fecharCarrinho()" style="background:#999;margin-top:8px">Fechar</button>
-    </div>
+    <p><strong>Total: R$ {{ "%.2f"|format(total) }}</strong></p>
+
+    <a class="botao" href="/finalizar">Finalizar no WhatsApp</a>
+    <a class="botao" style="background:#999" href="/limpar">Limpar carrinho</a>
 </div>
 
-<script>
-    let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
-
-    function addCarrinho(btn) {
-        const nome = btn.dataset.nome;
-        const preco = parseFloat(btn.dataset.preco);
-
-        carrinho.push({ nome, preco });
-        localStorage.setItem("carrinho", JSON.stringify(carrinho));
-        alert("Produto adicionado ao carrinho!");
-    }
-
-    function abrirCarrinho() {
-        document.getElementById("modal").style.display = "block";
-        renderCarrinho();
-    }
-
-    function fecharCarrinho() {
-        document.getElementById("modal").style.display = "none";
-    }
-
-    function renderCarrinho() {
-        const lista = document.getElementById("lista");
-        lista.innerHTML = "";
-
-        let total = 0;
-
-        carrinho.forEach(item => {
-            total += item.preco;
-            lista.innerHTML += `
-                <div class="item">
-                    ${item.nome} - R$ ${item.preco.toFixed(2)}
-                </div>
-            `;
-        });
-
-        lista.innerHTML += `<strong>Total: R$ ${total.toFixed(2)}</strong>`;
-    }
-
-    function finalizarWhatsApp() {
-        if (carrinho.length === 0) {
-            alert("Carrinho vazio");
-            return;
-        }
-
-        let mensagem = "🛒 *Pedido - Vitrine de Suplementos*%0A%0A";
-        let total = 0;
-
-        carrinho.forEach(item => {
-            mensagem += `• ${item.nome} - R$ ${item.preco.toFixed(2)}%0A`;
-            total += item.preco;
-        });
-
-        mensagem += `%0A*Total:* R$ ${total.toFixed(2)}`;
-
-        const numero = "5522981106356";
-        window.open(`https://wa.me/${numero}?text=${mensagem}`, "_blank");
-    }
-</script>
 
 </body>
 </html>
