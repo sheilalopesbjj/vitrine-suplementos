@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "nome": "Creatina Monohidratada 300g",
+    "preco": 99.9
+  },
+  {
+    "id": 2,
+    "nome": "Whey Protein Concentrado 900g",
+    "preco": 129.9
+  },
+  {
+    "id": 3,
+    "nome": "Termogênico Natural",
+    "preco": 79.9
+  }
+]

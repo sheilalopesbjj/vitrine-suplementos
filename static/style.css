@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    padding: 20px;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+}
+
+p {
+    font-size: 16px;
+}
+
+select, input[type="text"] {
+    width: 100%;
+    max-width: 280px;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+button {
+    padding: 10px;
+    background-color: #128C7E;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.botao.finalizar {
+    display: block;
+    background-color: #25D366;
+    color: #fff;
+    padding: 12px;
+    text-align: center;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-top: 20px;
+}

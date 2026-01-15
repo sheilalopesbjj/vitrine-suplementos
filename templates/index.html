@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja de Suplementos</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="topo">
+    <h1>🧃 Loja de Suplementos</h1>
+    <a href="/carrinho" class="btn-carrinho">🛒 Carrinho</a>
+</header>
+
+<main class="container">
+    {% for p in produtos %}
+        <div class="card-produto">
+
+            <!-- Placeholder visual profissional -->
+            <div class="img-produto">
+                <span>Imagem do Produto</span>
+            </div>
+
+            <div class="info-produto">
+                <h3>{{ p.nome }}</h3>
+                <p class="preco">R$ {{ "%.2f"|format(p.preco) }}</p>
+                <a href="/add/{{ p.id }}" class="btn-add">Adicionar ao carrinho</a>
+            </div>
+
+        </div>
+    {% endfor %}
+</main>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Painel Admin</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>⚙️ Painel Administrativo</h1>
+
+<h2>Adicionar Produto</h2>
+<form method="POST">
+    <input type="text" name="nome" placeholder="Nome do produto" required>
+    <input type="number" step="0.01" name="preco" placeholder="Preço" required>
+    <button type="submit">Adicionar</button>
+</form>
+
+<hr>
+
+<h2>Produtos Cadastrados</h2>
+<ul>
+{% for p in produtos %}
+    <li>
+        {{ p.nome }} — R$ {{ "%.2f"|format(p.preco) }}
+        <a href="/admin/remover/{{ p.id }}">❌ Remover</a>
+    </li>
+{% endfor %}
+</ul>
+
+<a href="/">⬅ Voltar para loja</a>
+
+</body>
+</html>

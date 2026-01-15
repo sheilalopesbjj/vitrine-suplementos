@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Carrinho</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>🛒 Seu Carrinho</h1>
+
+{% if carrinho %}
+    {% for item in carrinho.values() %}
+        <p>{{ item.nome }} (x{{ item.qtd }}) — R$ {{ "%.2f"|format(item.preco * item.qtd) }}</p>
+    {% endfor %}
+
+    <hr>
+
+    <form method="POST">
+        <p><strong>Escolha o bairro:</strong></p>
+        <select name="bairro">
+            {% for nome, valor in fretes.items() %}
+                <option value="{{ nome }}" {% if bairro == nome %}selected{% endif %}>
+                    {{ nome }} — R$ {{ "%.2f"|format(valor) }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <p><strong>Cupom de desconto:</strong></p>
+        <input type="text" name="cupom" placeholder="Digite o cupom">
+
+        <br><br>
+        <button type="submit">Atualizar Pedido</button>
+    </form>
+
+    <hr>
+
+    <p>Subtotal: R$ {{ "%.2f"|format(subtotal) }}</p>
+
+    {% if desconto > 0 %}
+        <p>Desconto: -R$ {{ "%.2f"|format(desconto) }}</p>
+    {% endif %}
+
+    <p>Frete: R$ {{ "%.2f"|format(frete) }}</p>
+
+    <h2>Total: R$ {{ "%.2f"|format(total) }}</h2>
+
+    <a class="botao finalizar" href="/finalizar">Finalizar no WhatsApp</a>
+
+{% else %}
+    <p>Seu carrinho está vazio.</p>
+{% endif %}
+
+<a href="/">⬅ Voltar à loja</a>
+
+</body>
+</html>
