@@ -8,13 +8,12 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            background: #f5f5f5;
             margin: 0;
-            padding: 0;
         }
 
         header {
-            background-color: #111;
+            background: #111;
             color: #fff;
             padding: 15px;
             text-align: center;
@@ -25,66 +24,61 @@
             margin: auto;
             padding: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 20px;
         }
 
         .card {
-            background-color: #fff;
-            border-radius: 8px;
+            background: #fff;
             padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.1);
         }
 
         .card img {
             width: 100%;
-            max-height: 180px;
+            height: 180px;
             object-fit: contain;
-            margin-bottom: 10px;
-        }
-
-        .card h3 {
-            font-size: 18px;
-            margin: 10px 0 5px;
-        }
-
-        .card p {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 10px;
         }
 
         .price {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
+            margin: 10px 0;
             color: #2e7d32;
-            margin-bottom: 10px;
         }
 
-        .btn-whatsapp {
-            background-color: #25d366;
+        .btn {
+            display: block;
+            background: #1976d2;
             color: #fff;
             text-align: center;
-            padding: 12px;
+            padding: 10px;
             border-radius: 6px;
             text-decoration: none;
             font-weight: bold;
-            transition: background 0.3s;
         }
 
-        .btn-whatsapp:hover {
-            background-color: #1ebe5d;
+        .btn:hover {
+            background: #125ea7;
         }
 
-        footer {
-            text-align: center;
+        .carrinho {
+            background: #fff;
             padding: 15px;
-            background-color: #111;
+            margin: 20px;
+            border-radius: 8px;
+        }
+
+        .finalizar {
+            background: #25d366;
             color: #fff;
-            margin-top: 30px;
+            padding: 12px;
+            text-align: center;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
         }
     </style>
 </head>
@@ -92,34 +86,34 @@
 <body>
 
 <header>
-    <h1>Vitrine de Suplementos</h1>
-    <p>Peça direto pelo WhatsApp 📲</p>
+    <h1>🛒 Loja de Suplementos</h1>
+    <p>Monte seu pedido e finalize no WhatsApp</p>
 </header>
 
 <div class="container">
     {% for produto in produtos %}
     <div class="card">
-        <img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
-
+        <img src="{{ produto.imagem }}">
         <h3>{{ produto.nome }}</h3>
-
         <p>{{ produto.descricao }}</p>
-
-        <div class="price">R$ {{ "%.2f"|format(produto.preco) }}</div>
-
-        <a 
-           href="https://wa.me/5522981106356?text=Olá,%20tenho%20interesse%20no%20produto:%20{{ produto.nome }}%20por%20R$%20{{ produto.preco }}"
-           target="_blank"
-           class="btn-whatsapp">
-           Comprar no WhatsApp
-        </a>
+        <div class="price">R$ {{ produto.preco }}</div>
+        <a href="/add/{{ loop.index0 }}" class="btn">Adicionar ao carrinho</a>
     </div>
     {% endfor %}
 </div>
 
-<footer>
-    <p>© {{ ano }} - Vitrine de Suplementos</p>
-</footer>
+{% if carrinho %}
+<div class="carrinho">
+    <h3>🧾 Carrinho</h3>
+    <ul>
+        {% for p in carrinho %}
+        <li>{{ p.nome }} - R$ {{ p.preco }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="/finalizar" class="finalizar">Finalizar no WhatsApp</a>
+</div>
+{% endif %}
 
 </body>
 </html>
