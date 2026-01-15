@@ -10,23 +10,30 @@ ARQ_PRODUTOS = os.path.join(BASE_DIR, "produtos.json")
 
 
 def carregar_produtos():
-    if not os.path.exists(ARQ_PRODUTOS):
+    try:
+        if not os.path.exists(ARQ_PRODUTOS):
+            return []
+        with open(ARQ_PRODUTOS, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print("ERRO AO CARREGAR PRODUTOS:", e)
         return []
-    with open(ARQ_PRODUTOS, "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 @app.route("/")
 def index():
-    produtos = carregar_produtos()
-    carrinho = session.get("carrinho", [])
-    total = sum(float(p["preco"]) for p in carrinho)
-    return render_template(
-        "index.html",
-        produtos=produtos,
-        carrinho=carrinho,
-        total=total
-    )
+    try:
+        produtos = carregar_produtos()
+        carrinho = session.get("carrinho", [])
+        total = sum(float(p.get("preco", 0)) for p in carrinho)
+        return render_template(
+            "index.html",
+            produtos=produtos,
+            carrinho=carrinho,
+            total=total
+        )
+    except Exception as e:
+        return f"<h1>Erro interno</h1><pre>{e}</pre>"
 
 
 @app.route("/add/<int:id_produto>")
@@ -56,21 +63,21 @@ def finalizar():
     if not carrinho:
         return redirect(url_for("index"))
 
-    total = sum(float(p["preco"]) for p in carrinho)
-    desconto = 10.00
-    frete = 15.00
+    total = sum(float(p.get("preco", 0)) for p in carrinho)
+    desconto = 10.0
+    frete = 15.0
     total_final = total - desconto + frete
 
-    mensagem = "🛒 *Pedido - Loja de Suplementos*%0A%0A"
+    mensagem = "🛒 Pedido - Loja de Suplementos%0A%0A"
 
     for p in carrinho:
-        mensagem += f"- {p['nome']} (R$ {float(p['preco']):.2f})%0A"
+        mensagem += f"- {p.get('nome')} (R$ {float(p.get('preco',0)):.2f})%0A"
 
     mensagem += (
         f"%0A💰 Total: R$ {total:.2f}"
         f"%0A🎯 Desconto: R$ {desconto:.2f}"
         f"%0A🚚 Frete: R$ {frete:.2f}"
-        f"%0A✅ *Total final: R$ {total_final:.2f}*"
+        f"%0A✅ Total final: R$ {total_final:.2f}"
     )
 
     session["carrinho"] = []
