@@ -1,119 +1,176 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <title>Vitrine de Suplementos</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f5f5f5;
+            background: #f6f6f6;
             margin: 0;
-        }
-
-        header {
-            background: #111;
-            color: #fff;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: auto;
             padding: 20px;
+        }
+
+        h1 { text-align: center; }
+
+        .produtos {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
         }
 
-        .card {
+        .produto {
             background: #fff;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,.1);
+            text-align: center;
         }
 
-        .card img {
+        .produto img {
             width: 100%;
-            height: 180px;
+            max-height: 160px;
             object-fit: contain;
         }
 
-        .price {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 10px 0;
-            color: #2e7d32;
-        }
-
-        .btn {
-            display: block;
-            background: #1976d2;
-            color: #fff;
-            text-align: center;
+        button {
+            background: #25d366;
+            border: none;
+            color: white;
             padding: 10px;
             border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
         }
 
-        .btn:hover {
-            background: #125ea7;
+        #btn-carrinho {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #000;
+            color: #fff;
+            padding: 14px 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 999;
         }
 
-        .carrinho {
-            background: #fff;
-            padding: 15px;
-            margin: 20px;
+        #modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+        }
+
+        #modal-conteudo {
+            background: white;
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 20px;
             border-radius: 8px;
         }
 
-        .finalizar {
-            background: #25d366;
-            color: #fff;
-            padding: 12px;
-            text-align: center;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            display: block;
+        .item {
+            border-bottom: 1px solid #ddd;
+            padding: 6px 0;
         }
     </style>
 </head>
 
 <body>
 
-<header>
-    <h1>🛒 Loja de Suplementos</h1>
-    <p>Monte seu pedido e finalize no WhatsApp</p>
-</header>
+<h1>🛒 Vitrine de Suplementos</h1>
 
-<div class="container">
-    {% for produto in produtos %}
-    <div class="card">
-        <img src="{{ produto.imagem }}">
-        <h3>{{ produto.nome }}</h3>
-        <p>{{ produto.descricao }}</p>
-        <div class="price">R$ {{ produto.preco }}</div>
-        <a href="/add/{{ loop.index0 }}" class="btn">Adicionar ao carrinho</a>
+<div class="produtos">
+    {% for p in produtos %}
+    <div class="produto">
+        <img src="{{ p.imagem }}" alt="{{ p.nome }}">
+        <h3>{{ p.nome }}</h3>
+        <p>R$ {{ "%.2f"|format(p.preco) }}</p>
+
+        <button 
+            data-nome="{{ p.nome }}"
+            data-preco="{{ p.preco }}"
+            onclick="addCarrinho(this)">
+            Adicionar ao carrinho
+        </button>
     </div>
     {% endfor %}
 </div>
 
-{% if carrinho %}
-<div class="carrinho">
-    <h3>🧾 Carrinho</h3>
-    <ul>
-        {% for p in carrinho %}
-        <li>{{ p.nome }} - R$ {{ p.preco }}</li>
-        {% endfor %}
-    </ul>
+<div id="btn-carrinho" onclick="abrirCarrinho()">🛒 Ver carrinho</div>
 
-    <a href="/finalizar" class="finalizar">Finalizar no WhatsApp</a>
+<div id="modal">
+    <div id="modal-conteudo">
+        <h3>Seu carrinho</h3>
+        <div id="lista"></div>
+
+        <button onclick="finalizarWhatsApp()">Finalizar no WhatsApp</button>
+        <button onclick="fecharCarrinho()" style="background:#999;margin-top:8px">Fechar</button>
+    </div>
 </div>
-{% endif %}
+
+<script>
+    let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+
+    function addCarrinho(btn) {
+        const nome = btn.dataset.nome;
+        const preco = parseFloat(btn.dataset.preco);
+
+        carrinho.push({ nome, preco });
+        localStorage.setItem("carrinho", JSON.stringify(carrinho));
+        alert("Produto adicionado ao carrinho!");
+    }
+
+    function abrirCarrinho() {
+        document.getElementById("modal").style.display = "block";
+        renderCarrinho();
+    }
+
+    function fecharCarrinho() {
+        document.getElementById("modal").style.display = "none";
+    }
+
+    function renderCarrinho() {
+        const lista = document.getElementById("lista");
+        lista.innerHTML = "";
+
+        let total = 0;
+
+        carrinho.forEach(item => {
+            total += item.preco;
+            lista.innerHTML += `
+                <div class="item">
+                    ${item.nome} - R$ ${item.preco.toFixed(2)}
+                </div>
+            `;
+        });
+
+        lista.innerHTML += `<strong>Total: R$ ${total.toFixed(2)}</strong>`;
+    }
+
+    function finalizarWhatsApp() {
+        if (carrinho.length === 0) {
+            alert("Carrinho vazio");
+            return;
+        }
+
+        let mensagem = "🛒 *Pedido - Vitrine de Suplementos*%0A%0A";
+        let total = 0;
+
+        carrinho.forEach(item => {
+            mensagem += `• ${item.nome} - R$ ${item.preco.toFixed(2)}%0A`;
+            total += item.preco;
+        });
+
+        mensagem += `%0A*Total:* R$ ${total.toFixed(2)}`;
+
+        const numero = "5522981106356";
+        window.open(`https://wa.me/${numero}?text=${mensagem}`, "_blank");
+    }
+</script>
 
 </body>
 </html>
