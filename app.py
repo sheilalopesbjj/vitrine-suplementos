@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, redirect, url_for, session
 import json
 import os
 
 app = Flask(__name__)
 app.secret_key = "chave-secreta-carrinho"
 
-ARQ_PRODUTOS = "produtos.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ARQ_PRODUTOS = os.path.join(BASE_DIR, "produtos.json")
 
 
 def carregar_produtos():
@@ -19,18 +20,32 @@ def carregar_produtos():
 def index():
     produtos = carregar_produtos()
     carrinho = session.get("carrinho", [])
-    return render_template("index.html", produtos=produtos, carrinho=carrinho)
+    total = sum(float(p["preco"]) for p in carrinho)
+    return render_template(
+        "index.html",
+        produtos=produtos,
+        carrinho=carrinho,
+        total=total
+    )
 
 
 @app.route("/add/<int:id_produto>")
 def add(id_produto):
     produtos = carregar_produtos()
+
+    if id_produto < 0 or id_produto >= len(produtos):
+        return redirect(url_for("index"))
+
     carrinho = session.get("carrinho", [])
-
-    produto = produtos[id_produto]
-    carrinho.append(produto)
-
+    carrinho.append(produtos[id_produto])
     session["carrinho"] = carrinho
+
+    return redirect(url_for("index"))
+
+
+@app.route("/limpar")
+def limpar():
+    session["carrinho"] = []
     return redirect(url_for("index"))
 
 
@@ -42,25 +57,25 @@ def finalizar():
         return redirect(url_for("index"))
 
     total = sum(float(p["preco"]) for p in carrinho)
-    desconto = 10
-    frete = 15
-
+    desconto = 10.00
+    frete = 15.00
     total_final = total - desconto + frete
 
-    mensagem = "Olá! Quero finalizar meu pedido:%0A%0A"
+    mensagem = "🛒 *Pedido - Loja de Suplementos*%0A%0A"
 
     for p in carrinho:
-        mensagem += f"- {p['nome']} (R$ {p['preco']})%0A"
+        mensagem += f"- {p['nome']} (R$ {float(p['preco']):.2f})%0A"
 
-    mensagem += f"%0ATotal: R$ {total:.2f}"
-    mensagem += f"%0ADesconto: R$ {desconto:.2f}"
-    mensagem += f"%0AFrete: R$ {frete:.2f}"
-    mensagem += f"%0ATotal final: R$ {total_final:.2f}"
+    mensagem += (
+        f"%0A💰 Total: R$ {total:.2f}"
+        f"%0A🎯 Desconto: R$ {desconto:.2f}"
+        f"%0A🚚 Frete: R$ {frete:.2f}"
+        f"%0A✅ *Total final: R$ {total_final:.2f}*"
+    )
 
     session["carrinho"] = []
 
     whatsapp = "5522981106356"
-
     return redirect(f"https://wa.me/{whatsapp}?text={mensagem}")
 
 
