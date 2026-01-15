@@ -1,58 +1,54 @@
-from flask import Flask, render_template, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session
 import json
 import os
 
 app = Flask(__name__)
 app.secret_key = "chave-secreta-carrinho"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ARQ_PRODUTOS = os.path.join(BASE_DIR, "produtos.json")
+ARQ_PRODUTOS = "produtos.json"
 
 
 def carregar_produtos():
-    try:
-        if not os.path.exists(ARQ_PRODUTOS):
-            return []
-        with open(ARQ_PRODUTOS, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        print("ERRO AO CARREGAR PRODUTOS:", e)
+    if not os.path.exists(ARQ_PRODUTOS):
         return []
+    with open(ARQ_PRODUTOS, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def preco_para_float(valor):
+    """
+    Converte preço para float, aceitando:
+    49
+    49.90
+    '49,90'
+    '49.90'
+    """
+    if isinstance(valor, (int, float)):
+        return float(valor)
+
+    valor = valor.replace("R$", "").strip()
+    valor = valor.replace(",", ".")
+    return float(valor)
 
 
 @app.route("/")
 def index():
-    try:
-        produtos = carregar_produtos()
-        carrinho = session.get("carrinho", [])
-        total = sum(float(p.get("preco", 0)) for p in carrinho)
-        return render_template(
-            "index.html",
-            produtos=produtos,
-            carrinho=carrinho,
-            total=total
-        )
-    except Exception as e:
-        return f"<h1>Erro interno</h1><pre>{e}</pre>"
+    produtos = carregar_produtos()
+    carrinho = session.get("carrinho", [])
+    return render_template("index.html", produtos=produtos, carrinho=carrinho)
 
 
 @app.route("/add/<int:id_produto>")
 def add(id_produto):
     produtos = carregar_produtos()
+    carrinho = session.get("carrinho", [])
 
     if id_produto < 0 or id_produto >= len(produtos):
         return redirect(url_for("index"))
 
-    carrinho = session.get("carrinho", [])
     carrinho.append(produtos[id_produto])
     session["carrinho"] = carrinho
 
-    return redirect(url_for("index"))
-
-
-@app.route("/limpar")
-def limpar():
-    session["carrinho"] = []
     return redirect(url_for("index"))
 
 
@@ -63,22 +59,23 @@ def finalizar():
     if not carrinho:
         return redirect(url_for("index"))
 
-    total = sum(float(p.get("preco", 0)) for p in carrinho)
+    total = 0.0
+    for p in carrinho:
+        total += preco_para_float(p["preco"])
+
     desconto = 10.0
     frete = 15.0
     total_final = total - desconto + frete
 
-    mensagem = "🛒 Pedido - Loja de Suplementos%0A%0A"
+    mensagem = "Olá! Quero finalizar meu pedido:%0A%0A"
 
     for p in carrinho:
-        mensagem += f"- {p.get('nome')} (R$ {float(p.get('preco',0)):.2f})%0A"
+        mensagem += f"- {p['nome']} (R$ {p['preco']})%0A"
 
-    mensagem += (
-        f"%0A💰 Total: R$ {total:.2f}"
-        f"%0A🎯 Desconto: R$ {desconto:.2f}"
-        f"%0A🚚 Frete: R$ {frete:.2f}"
-        f"%0A✅ Total final: R$ {total_final:.2f}"
-    )
+    mensagem += f"%0ATotal: R$ {total:.2f}"
+    mensagem += f"%0ADesconto: R$ {desconto:.2f}"
+    mensagem += f"%0AFrete: R$ {frete:.2f}"
+    mensagem += f"%0ATotal final: R$ {total_final:.2f}"
 
     session["carrinho"] = []
 
